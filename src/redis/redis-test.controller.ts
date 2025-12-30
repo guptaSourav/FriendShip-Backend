@@ -1,11 +1,13 @@
 // src/redis/redis-test.controller.ts
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { RedisService } from './redis.service';
+// import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('redis-test')
 export class RedisTestController {
   constructor(private readonly redisService: RedisService) {}
-
+  
+  // @UseGuards(JwtAuthGuard)
   @Get('set')
   async setValue() {
     await this.redisService.set('hello', 'world', 30); // 30 sec TTL
