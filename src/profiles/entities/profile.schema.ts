@@ -1,5 +1,3 @@
-// src/profiles/entities/profile.schema.ts
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
 
@@ -17,7 +15,25 @@ export enum ProfileStatus {
   SUSPENDED = 'suspended',
 }
 
-@Schema({ timestamps: true })
+export enum Habit {
+  SMOKING = 'smoking',
+  DRINKING = 'drinking',
+  GYM = 'gym',
+  VEGAN = 'vegan',
+}
+
+export enum EducationLevel {
+  HIGH_SCHOOL = 'high_school',
+  BACHELORS = 'bachelors',
+  MASTERS = 'masters',
+  PHD = 'phd',
+}
+
+@Schema({
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+})
 export class Profile {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, unique: true })
   userId: Types.ObjectId;
@@ -25,7 +41,7 @@ export class Profile {
   @Prop({ required: true })
   name: string;
 
-  @Prop()
+  @Prop({ maxlength: 500 })
   bio?: string;
 
   @Prop({ required: true })
@@ -33,6 +49,18 @@ export class Profile {
 
   @Prop({ enum: Gender, required: true })
   gender: Gender;
+
+  @Prop({ min: 100, max: 250 })
+  heightCm?: number;
+
+  @Prop()
+  religion?: string;
+
+  @Prop({ type: [String], enum: Habit, default: [] })
+  habits: Habit[];
+
+  @Prop({ enum: EducationLevel })
+  education?: EducationLevel;
 
   @Prop({ type: [String], default: [] })
   interests: string[];
@@ -45,8 +73,13 @@ export class Profile {
 
   @Prop({
     type: {
-      type: { type: String, enum: ['Point'], default: 'Point' },
-      coordinates: { type: [Number] }, // [lng, lat]
+      type: String,
+      enum: ['Point'],
+      required: false,
+    },
+    coordinates: {
+      type: [Number],
+      required: false,
     },
   })
   location?: {
@@ -57,7 +90,7 @@ export class Profile {
   @Prop({ default: true })
   isVisible: boolean;
 
-  @Prop({ default: 0 })
+  @Prop({ default: 0, min: 0, max: 100 })
   completionPercentage: number;
 
   @Prop({ enum: ProfileStatus, default: ProfileStatus.DRAFT })
@@ -65,6 +98,25 @@ export class Profile {
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
+
+ProfileSchema.virtual('age').get(function () {
+  if (!this.dateOfBirth) return null;
+  
+  const today = new Date();
+  const birthDate = new Date(this.dateOfBirth);
+  console.log("dob",birthDate);
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+  
+  return age;
+});
 
 // 📍 Geo index for nearby search
 ProfileSchema.index({ location: '2dsphere' });

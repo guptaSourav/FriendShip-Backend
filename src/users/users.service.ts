@@ -13,16 +13,27 @@ export class UsersService {
   async findByProviderId(
     provider: AuthProvider,
     providerId: string,
-  ): Promise<UserDocument | null> {  // ✅ fix return type
+  ): Promise<UserDocument | null> {
+    // ✅ fix return type
     return this.userModel.findOne({ provider, providerId }).exec();
   }
 
-  async createUser(data: Partial<User>): Promise<UserDocument> { // ✅ fix return type
+  async createUser(data: Partial<User>): Promise<UserDocument> {
+    // ✅ fix return type
     const user = new this.userModel(data);
     return user.save();
   }
-  
-  async findById(userId: string): Promise<UserDocument | null> { // ✅ fix return type
+
+  async findById(userId: string): Promise<UserDocument | null> {
+    // ✅ fix return type
     return this.userModel.findById(userId).exec();
+  }
+
+  async findByEmail(email: string): Promise<UserDocument | null> {
+    return this.userModel.findOne({ email }).exec();
+  }
+
+  async findByEmailWithPassword(email: string) {
+    return this.userModel.findOne({ email }).select('+password').exec();
   }
 }
