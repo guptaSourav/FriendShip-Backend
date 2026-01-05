@@ -10,7 +10,7 @@ export class RedisTestController {
   // @UseGuards(JwtAuthGuard)
   @Get('set')
   async setValue() {
-    await this.redisService.set('hello', 'world', 30); // 30 sec TTL
+    await this.redisService.set('hello', 'world', 30);
     return { message: 'Key set in Redis' };
   }
 

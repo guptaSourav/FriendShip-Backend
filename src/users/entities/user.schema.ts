@@ -5,6 +5,7 @@ export type UserDocument = User & Document;
 
 export enum AuthProvider {
   GOOGLE = 'google',
+  LOCAL = 'local',
 }
 
 export enum UserRole {
@@ -12,7 +13,11 @@ export enum UserRole {
   ADMIN = 'admin',
 }
 
-@Schema({ timestamps: true })
+@Schema({
+  timestamps: true,
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true },
+})
 export class User {
   @Prop({ required: true, enum: AuthProvider })
   provider: AuthProvider;
@@ -22,6 +27,9 @@ export class User {
 
   @Prop({ required: true, unique: true })
   email: string;
+
+  @Prop()
+  password?: string;
 
   @Prop({ enum: UserRole, default: UserRole.USER })
   role: UserRole;
@@ -40,12 +48,22 @@ export class User {
 
   @Prop({ type: [String], default: [] })
   fcmTokens: string[];
-  
+
   @Prop()
   lastLoginAt?: Date;
+
+  @Prop({ default: false })
+  isOtpVerified: boolean;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
+
+UserSchema.virtual('profile', {
+  ref: 'Profile', // The model to use
+  localField: '_id', // Field in User
+  foreignField: 'userId', // Field in Profile
+  justOne: true, // Because one user has only one profile
+});
 
 // 🔐 Indexes
 UserSchema.index({ provider: 1, providerId: 1 }, { unique: true });
