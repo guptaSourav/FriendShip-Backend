@@ -263,7 +263,7 @@ export class AuthService {
       'true',
       600, // 10 min to reset password
     );
-    
+
     // Delete OTP
     await this.redisService.del(`otp:forgot:${dto.email}`);
 
@@ -294,5 +294,13 @@ export class AuthService {
     await this.redisService.del(`otp:forgot:verified:${dto.email}`);
 
     return { message: 'Password reset successfully' };
+  }
+
+  verifyAccessToken(token: string) {
+    try {
+      return this.jwtService.verify(token);
+    } catch (error) {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
   }
 }

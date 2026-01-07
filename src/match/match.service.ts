@@ -2,22 +2,38 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Match, MatchDocument } from './entities/match.schema';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.schema';
 
 @Injectable()
 export class MatchService {
   constructor(
     @InjectModel(Match.name)
     private matchModel: Model<MatchDocument>,
+    private readonly notificationService: NotificationsService,
   ) {}
 
-  async createMatch(userA: string, userB: string) {
+  async createMatch(userA: string, userB: string, triggeredBy: string) {
     const [user1, user2] = userA < userB ? [userA, userB] : [userB, userA];
+    const waitingUser = triggeredBy === user1 ? user2 : user1;
 
     try {
-      return await this.matchModel.create({
+      const match = await this.matchModel.create({
         user1: new Types.ObjectId(user1),
         user2: new Types.ObjectId(user2),
       });
+
+      await this.notificationService.createNotification({
+        receiver: waitingUser,
+        sender: triggeredBy,
+        type: NotificationType.MATCH,
+        title: 'It’s a Match! 🎉',
+        body: 'Someone you liked just liked you back!',
+        entityId: match._id.toString(),
+        platform: 'in_app',
+      });
+
+      return match;
     } catch (err) {
       if (err.code === 11000) {
         return null; // Match already exists

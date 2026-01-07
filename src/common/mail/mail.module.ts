@@ -4,8 +4,8 @@ import { MailService } from './mail.service';
 import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ConfigModule], // so ConfigService works
+  imports: [ConfigModule],
   providers: [MailService],
-  exports: [MailService], // make it available outside
+  exports: [MailService],
 })
 export class MailModule {}

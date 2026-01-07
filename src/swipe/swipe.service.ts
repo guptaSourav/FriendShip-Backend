@@ -34,7 +34,7 @@ export class SwipeService {
         });
 
         if (reverseSwipe) {
-          await this.matchService.createMatch(fromUserId, dto.toUserId);
+          await this.matchService.createMatch(fromUserId, dto.toUserId, fromUserId);
 
           return {
             success: true,

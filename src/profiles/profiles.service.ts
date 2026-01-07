@@ -77,7 +77,6 @@ export class ProfilesService {
     userId: string,
     dto: UpdateLocationDto,
   ): Promise<ProfileDocument> {
-    
     const profile = await this.profileModel.findOne({
       userId: new Types.ObjectId(userId),
     });
@@ -103,11 +102,10 @@ export class ProfilesService {
   }
 
   async getMyProfile(userId: string): Promise<ProfileDocument> {
-    const profile = await this.profileModel
-      .findOne({
-        userId: new Types.ObjectId(userId),
-      });
-      // .select('-dateOfBirth');
+    const profile = await this.profileModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
+    // .select('-dateOfBirth');
 
     if (!profile) {
       throw new NotFoundException('Profile not found');
