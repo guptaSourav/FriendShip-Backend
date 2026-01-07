@@ -6,6 +6,8 @@ import { RedisModule } from './redis/redis.module';
 import { DiscoverModule } from './discover/discover.module';
 import { AuthModule } from './auth/auth.module';
 import { SwipeModule } from './swipe/swipe.module';
+import { SocketModule } from './socket/socket.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 import { RedisTestController } from './redis/redis-test.controller';
 
@@ -18,6 +20,8 @@ import { RedisTestController } from './redis/redis-test.controller';
     AuthModule,
     DiscoverModule,
     SwipeModule,
+    SocketModule,
+    NotificationsModule,
   ],
   controllers: [RedisTestController],
 })
