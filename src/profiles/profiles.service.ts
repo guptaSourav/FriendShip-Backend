@@ -97,7 +97,7 @@ export class ProfilesService {
     if (profile.completionPercentage >= 70) {
       profile.status = ProfileStatus.ACTIVE;
     }
-
+    
     return profile.save();
   }
 
