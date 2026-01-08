@@ -25,7 +25,7 @@ export class ProfilesController {
     const { userId } = req.user;
     return this.profilesService.updateProfile(userId, dto);
   }
-
+  
   @UseGuards(JwtAuthGuard)
   @Patch('set-location')
   updateMyLocation(@Req() req, @Body() dto: UpdateLocationDto) {
