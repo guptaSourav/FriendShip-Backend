@@ -10,12 +10,13 @@ import { UpdateProfileDto } from './dto/update-profile.dto';
 import { NotFoundException } from '@nestjs/common';
 import { UpdateLocationDto } from './dto/update-location.dto';
 import { getLocationFromCoordinates } from '../common/utils/location.helper';
-
+import { ProfileWithPreference } from './dto/profile-with-preference.dto';
 import { PreferenceDocument } from './entities/preference.schema';
 import { CreatePreferenceDto } from './dto/create-preference.dto';
 import { UpdatePreferenceDto } from './dto/update-preference.dto';
 // import { Habit } from './entities/profile.schema';
 // import { EducationLevel } from './entities/profile.schema';
+
 
 @Injectable()
 export class ProfilesService {
@@ -121,17 +122,22 @@ export class ProfilesService {
     return profile.save();
   }
 
-  async getMyProfile(userId: string): Promise<ProfileDocument> {
-    const profile = await this.profileModel.findOne({
-      userId: new Types.ObjectId(userId),
-    });
-    // .select('-dateOfBirth');
+  async getMyProfile(userId: string):  Promise<ProfileWithPreference> {
+    const userObjectId = new Types.ObjectId(userId);
+
+    const [profile, preference] = await Promise.all([
+      this.profileModel.findOne({ userId: userObjectId }).lean(),
+      this.preferenceModel.findOne({ userId: userObjectId }).lean(),
+    ]);
 
     if (!profile) {
       throw new NotFoundException('Profile not found');
     }
 
-    return profile;
+    return {
+      ...profile,
+      preference: preference || null,
+    };
   }
 
   async getProfileByUserId(userId: string) {
@@ -182,7 +188,7 @@ export class ProfilesService {
     if (!preference) {
       throw new NotFoundException('Preference not found');
     }
-    
+
     return preference;
   }
 
@@ -199,10 +205,7 @@ export class ProfilesService {
     }
 
     return preference;
-  };
-
-
-
+  }
 
   // Helper method to calculate completion
   private calculateCompletion(profile: ProfileDocument): number {
