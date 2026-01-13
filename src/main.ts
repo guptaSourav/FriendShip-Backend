@@ -11,7 +11,7 @@ async function bootstrap() {
 
     // Global prefix
   app.setGlobalPrefix('friendShip/v1/api');
-
+  
   app.enableCors({
     origin: '*',
     credentials: true,

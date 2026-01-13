@@ -12,6 +12,8 @@ import {
 import { ProfilesService } from './profiles.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UpdateLocationDto } from './dto/update-location.dto';
+import { CreatePreferenceDto } from './dto/create-preference.dto';
+import { UpdatePreferenceDto } from './dto/update-preference.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { ProfileStatus } from './entities/profile.schema';
 
@@ -37,6 +39,27 @@ export class ProfilesController {
   async getMyProfile(@Req() req) {
     const { userId } = req.user;
     return this.profilesService.getMyProfile(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('set-preferences')
+  async setPreferences(@Req() req, @Body() dto: CreatePreferenceDto) {
+    const { userId } = req.user;
+    return this.profilesService.setPreference(userId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('update-preferences')
+  async updatePreferences(@Req() req, @Body() dto: UpdatePreferenceDto) {
+    const { userId } = req.user;
+    return this.profilesService.updatePreference(userId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('get-preferences')
+  async getMyPreferences(@Req() req) {
+    const { userId } = req.user;
+    return this.profilesService.getPreference(userId);
   }
 
   @Get(':userId')
