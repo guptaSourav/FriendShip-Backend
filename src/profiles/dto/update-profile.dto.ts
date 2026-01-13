@@ -9,7 +9,7 @@ import {
   Min,
   Max,
 } from 'class-validator';
-import { Gender, Habit, EducationLevel } from '../entities/profile.schema';
+import { Gender, EducationLevel } from '../entities/profile.schema';
 
 export class UpdateProfileDto {
   @IsOptional()
@@ -36,8 +36,7 @@ export class UpdateProfileDto {
   @IsOptional()
   @IsArray()
   @ArrayUnique()
-  @IsEnum(Habit, { each: true })
-  habits?: Habit[];
+  habits?: string[];
 
   @IsOptional()
   @IsEnum(EducationLevel)
@@ -53,4 +52,28 @@ export class UpdateProfileDto {
 
   @IsOptional()
   isVisible?: boolean;
+
+  @IsOptional()
+  @IsString()
+  city?: string;
+
+  @IsOptional()
+  @IsString()
+  state?: string;
+
+  @IsOptional()
+  @IsString()
+  country?: string;
+
+  @IsOptional()
+  drinking?: boolean;
+
+  @IsOptional()
+  smoking?: boolean;
+
+  @IsOptional()
+  gym?: boolean;
+
+  @IsOptional()
+  vegan?: boolean;
 }

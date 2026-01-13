@@ -5,17 +5,25 @@ import { Model, Types } from 'mongoose';
 import { Profile, ProfileDocument } from './entities/profile.schema';
 import { ProfileStatus } from './entities/profile.schema';
 import { Gender } from './entities/profile.schema';
+import { Preference } from './entities/preference.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { NotFoundException } from '@nestjs/common';
 import { UpdateLocationDto } from './dto/update-location.dto';
-import { Habit } from './entities/profile.schema';
-import { EducationLevel } from './entities/profile.schema';
+import { getLocationFromCoordinates } from '../common/utils/location.helper';
+
+import { PreferenceDocument } from './entities/preference.schema';
+import { CreatePreferenceDto } from './dto/create-preference.dto';
+import { UpdatePreferenceDto } from './dto/update-preference.dto';
+// import { Habit } from './entities/profile.schema';
+// import { EducationLevel } from './entities/profile.schema';
 
 @Injectable()
 export class ProfilesService {
   constructor(
     @InjectModel(Profile.name)
     private profileModel: Model<ProfileDocument>,
+    @InjectModel(Preference.name)
+    private readonly preferenceModel: Model<PreferenceDocument>,
   ) {}
 
   async createProfile(data: {
@@ -55,6 +63,12 @@ export class ProfilesService {
     if (dto.education !== undefined) profile.education = dto.education;
     if (dto.gender !== undefined) profile.gender = dto.gender;
     if (dto.isVisible !== undefined) profile.isVisible = dto.isVisible;
+    // if (dto.city !== undefined) profile.city = dto.city;
+    // if (dto.country !== undefined) profile.country = dto.country;
+    if (dto.drinking !== undefined) profile.drinking = dto.drinking;
+    if (dto.smoking !== undefined) profile.smoking = dto.smoking;
+    if (dto.gym !== undefined) profile.gym = dto.gym;
+    if (dto.vegan !== undefined) profile.vegan = dto.vegan;
 
     // Handle location if provided as "lat,lng"
     if (dto.locationLatLng) {
@@ -90,6 +104,12 @@ export class ProfilesService {
       coordinates: [dto.lng, dto.lat], // ⚠️ lng first (MongoDB rule)
     };
 
+    const locationData = await getLocationFromCoordinates(dto.lat, dto.lng);
+
+    profile.city = locationData.city;
+    profile.state = locationData.state;
+    profile.country = locationData.country;
+
     // Recalculate completion
     profile.completionPercentage = this.calculateCompletion(profile);
 
@@ -97,7 +117,7 @@ export class ProfilesService {
     if (profile.completionPercentage >= 70) {
       profile.status = ProfileStatus.ACTIVE;
     }
-    
+
     return profile.save();
   }
 
@@ -138,6 +158,52 @@ export class ProfilesService {
       .lean();
   }
 
+  async setPreference(userId: string, dto: CreatePreferenceDto) {
+    const preference = await this.preferenceModel.findOneAndUpdate(
+      { userId: new Types.ObjectId(userId) },
+      {
+        ...dto,
+      },
+      {
+        new: true,
+        upsert: true,
+      },
+    );
+
+    return preference;
+  }
+
+  // Get my preference
+  async getPreference(userId: string) {
+    const preference = await this.preferenceModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
+
+    if (!preference) {
+      throw new NotFoundException('Preference not found');
+    }
+    
+    return preference;
+  }
+
+  // Update preference
+  async updatePreference(userId: string, dto: UpdatePreferenceDto) {
+    const preference = await this.preferenceModel.findOneAndUpdate(
+      { userId: new Types.ObjectId(userId) },
+      dto,
+      { new: true },
+    );
+
+    if (!preference) {
+      throw new NotFoundException('Preference not found');
+    }
+
+    return preference;
+  };
+
+
+
+
   // Helper method to calculate completion
   private calculateCompletion(profile: ProfileDocument): number {
     let completed = 0;
@@ -151,6 +217,10 @@ export class ProfilesService {
       !!profile.gender,
       profile.location?.coordinates?.length === 2,
       profile.photos?.length > 0,
+      !!profile.primaryPhoto,
+      !!profile.city,
+      !!profile.state,
+      !!profile.country,
     ];
 
     const weight = 100 / checks.length;

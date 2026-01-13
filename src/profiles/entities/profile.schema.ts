@@ -15,12 +15,12 @@ export enum ProfileStatus {
   SUSPENDED = 'suspended',
 }
 
-export enum Habit {
-  SMOKING = 'smoking',
-  DRINKING = 'drinking',
-  GYM = 'gym',
-  VEGAN = 'vegan',
-}
+// export enum Habit {
+//   SMOKING = 'smoking',
+//   DRINKING = 'drinking',
+//   GYM = 'gym',
+//   VEGAN = 'vegan',
+// }
 
 export enum EducationLevel {
   HIGH_SCHOOL = 'high_school',
@@ -34,6 +34,7 @@ export enum EducationLevel {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 })
+
 export class Profile {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, unique: true })
   userId: Types.ObjectId;
@@ -56,8 +57,8 @@ export class Profile {
   @Prop()
   religion?: string;
 
-  @Prop({ type: [String], enum: Habit, default: [] })
-  habits: Habit[];
+  @Prop({ type: [String], default: [] })
+  habits: string[];
 
   @Prop({ enum: EducationLevel })
   education?: EducationLevel;
@@ -86,6 +87,27 @@ export class Profile {
     type: 'Point';
     coordinates: [number, number];
   };
+
+  @Prop({ default: null })
+  city: string;
+
+  @Prop({ default: null })
+  state: string;
+
+  @Prop({ default: null })
+  country: string;
+
+  @Prop({ default: false })
+  drinking: boolean;
+
+  @Prop({ default: false })
+  smoking: boolean;
+
+  @Prop({ default: false })
+  vegan: boolean;
+
+  @Prop({ default: false })
+  gym: boolean;
 
   @Prop({ default: true })
   isVisible: boolean;
