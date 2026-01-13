@@ -15,6 +15,7 @@ import { UpdateLocationDto } from './dto/update-location.dto';
 import { CreatePreferenceDto } from './dto/create-preference.dto';
 import { UpdatePreferenceDto } from './dto/update-preference.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { ProfileWithPreference } from './dto/profile-with-preference.dto';
 import { ProfileStatus } from './entities/profile.schema';
 
 @Controller('profiles')
@@ -61,7 +62,7 @@ export class ProfilesController {
     const { userId } = req.user;
     return this.profilesService.getPreference(userId);
   }
-
+  
   @Get(':userId')
   async getProfileByUserId(@Param('userId') userId: string) {
     const profile = await this.profilesService.getProfileByUserId(userId);

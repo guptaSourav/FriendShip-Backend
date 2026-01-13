@@ -19,7 +19,8 @@ export class CreatePreferenceDto {
   @Max(100)
   maxAge: number;
 
-  @IsArray()
+  @IsOptional()
+  // @IsArray()
   @IsEnum(Gender, { each: true })
   preferredGender: Gender[];
 
@@ -31,19 +32,23 @@ export class CreatePreferenceDto {
   preferredReligion?: string;
 
   @IsOptional()
-  @IsArray()
+  // @IsArray()
   @IsEnum(EducationLevel, { each: true })
   educationLevels?: EducationLevel[];
 
+  @IsOptional()
   @IsBoolean()
   allowSmoking: boolean;
 
+  @IsOptional()
   @IsBoolean()
   allowDrinking: boolean;
 
+  @IsOptional()
   @IsBoolean()
   allowVegan: boolean;
 
+  @IsOptional()
   @IsBoolean()
   allowGym: boolean;
 
