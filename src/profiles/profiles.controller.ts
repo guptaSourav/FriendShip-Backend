@@ -62,11 +62,11 @@ export class ProfilesController {
     const { userId } = req.user;
     return this.profilesService.getPreference(userId);
   }
-  
+
   @Get(':userId')
   async getProfileByUserId(@Param('userId') userId: string) {
     const profile = await this.profilesService.getProfileByUserId(userId);
-
+    
     if (!profile) {
       throw new NotFoundException('Profile not found');
     }
