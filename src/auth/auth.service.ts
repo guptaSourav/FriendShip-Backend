@@ -168,7 +168,7 @@ export class AuthService {
 
     // Delete OTP from Redis
     await this.redisService.del(`otp:register:${dto.email}`);
-
+    
     // Generate JWT
     const token = this.generateToken(user);
 
