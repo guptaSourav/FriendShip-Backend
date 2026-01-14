@@ -112,7 +112,7 @@ export class AuthService {
     // Send OTP email
     // await this.mailService.sendOtp(dto.email, otp);
 
-    return { message: 'OTP sent to email', otp:otp }; // Remove otp in production
+    return { message: 'OTP sent to email', otp: otp }; // Remove otp in production
   }
 
   // Step 2: Verify OTP and create user
@@ -148,8 +148,15 @@ export class AuthService {
       isProfileCompleted: false,
     });
 
-    const genderEnum =
-      Gender[extraData.gender.toUpperCase() as keyof typeof Gender];
+    if (!extraData?.gender) {
+      throw new BadRequestException('Gender is required');
+    }
+
+    const genderEnum = extraData.gender?.toLowerCase() as Gender;
+
+    if (!Object.values(Gender).includes(genderEnum)) {
+      throw new BadRequestException('Invalid gender value');
+    }
 
     // Create profile
     await this.profilesService.createProfile({
