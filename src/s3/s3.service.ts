@@ -52,7 +52,7 @@ export class S3Service {
     expiresIn?: number;
   }): Promise<{ key: string; uploadUrl: string }> {
     const { userId, contentType, extension, expiresIn = 300 } = params;
-
+    
     const key = `user-photos/${userId}/temp/${randomUUID()}.${extension}`;
 
     const command = new PutObjectCommand({

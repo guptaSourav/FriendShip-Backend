@@ -110,9 +110,9 @@ export class AuthService {
     await this.redisService.set(`otp:register:${dto.email}`, otp, 300);
 
     // Send OTP email
-    await this.mailService.sendOtp(dto.email, otp);
+    // await this.mailService.sendOtp(dto.email, otp);
 
-    return { message: 'OTP sent to email' };
+    return { message: 'OTP sent to email', otp:otp }; // Remove otp in production
   }
 
   // Step 2: Verify OTP and create user
