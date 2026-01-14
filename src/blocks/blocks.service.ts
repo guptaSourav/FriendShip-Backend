@@ -52,7 +52,7 @@ export class BlocksService {
       .populate('blocked', 'email')
       .select('blocked reason createdAt');
 
-      console.log(blockList);
+      // console.log(blockList);
     return blockList;
   }
 }

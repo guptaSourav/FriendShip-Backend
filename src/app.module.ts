@@ -9,6 +9,7 @@ import { SwipeModule } from './swipe/swipe.module';
 import { SocketModule } from './socket/socket.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import {BlockModule} from './blocks/blocks.module';
+import {FeedModule} from "./feed/feed.module";
 
 import { RedisTestController } from './redis/redis-test.controller';
 
@@ -24,6 +25,7 @@ import { RedisTestController } from './redis/redis-test.controller';
     SocketModule,
     NotificationsModule,
     BlockModule,
+    FeedModule,
   ],
   controllers: [RedisTestController],
 })

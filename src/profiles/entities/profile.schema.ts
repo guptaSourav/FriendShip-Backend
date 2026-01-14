@@ -34,7 +34,6 @@ export enum EducationLevel {
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 })
-
 export class Profile {
   @Prop({ type: Types.ObjectId, ref: 'User', required: true, unique: true })
   userId: Types.ObjectId;
@@ -117,16 +116,19 @@ export class Profile {
 
   @Prop({ enum: ProfileStatus, default: ProfileStatus.DRAFT })
   status: ProfileStatus;
+
+  @Prop({ default: 0 })
+  likeCount: number;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
 
 ProfileSchema.virtual('age').get(function () {
   if (!this.dateOfBirth) return null;
-  
+
   const today = new Date();
   const birthDate = new Date(this.dateOfBirth);
-  console.log("dob",birthDate);
+  // console.log('dob', birthDate);
   let age = today.getFullYear() - birthDate.getFullYear();
   const monthDiff = today.getMonth() - birthDate.getMonth();
 
@@ -136,7 +138,7 @@ ProfileSchema.virtual('age').get(function () {
   ) {
     age--;
   }
-  
+
   return age;
 });
 
