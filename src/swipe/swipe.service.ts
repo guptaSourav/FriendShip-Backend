@@ -64,4 +64,12 @@ export class SwipeService {
       throw error;
     }
   }
+
+  async getTotalLikes(userId: string): Promise<number> {
+    const count = await this.swipeModel.countDocuments({
+      toUser: new Types.ObjectId(userId),
+      action: SwipeAction.LIKE,
+    });
+    return count;
+  }
 }
