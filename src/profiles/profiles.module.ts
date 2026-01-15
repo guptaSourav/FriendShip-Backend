@@ -6,6 +6,7 @@ import { Profile, ProfileSchema } from './entities/profile.schema';
 import { Preference, PreferenceSchema } from './entities/preference.schema';
 // import { SwipeModule } from '../swipe/swipe.module';
 
+
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Profile.name, schema: ProfileSchema }]),
