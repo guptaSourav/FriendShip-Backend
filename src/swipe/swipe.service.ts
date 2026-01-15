@@ -86,4 +86,37 @@ export class SwipeService {
       throw error;
     }
   }
+
+  async getMySwipesLike(userId: string) {
+    const userObjectId = new Types.ObjectId(userId);
+
+    return this.swipeModel.aggregate([
+      {
+        $match: {
+          toUser: userObjectId,
+          action: 'like',
+        },
+      },
+      {
+        $lookup: {
+          from: 'profiles', // MongoDB collection name
+          localField: 'fromUser', // Swipe.fromUser
+          foreignField: 'userId', // Profile.userId
+          as: 'profile',
+        },
+      },
+      {
+        $project:{
+          'profile.location':0,
+        }
+      },
+      {
+        $unwind: '$profile',
+      },
+      {
+        // Return only profile data (optional but clean)
+        $replaceRoot: { newRoot: '$profile' },
+      },
+    ]);
+  }
 }
