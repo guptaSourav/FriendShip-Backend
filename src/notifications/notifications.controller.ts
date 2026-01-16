@@ -29,7 +29,7 @@ export class NotificationsController {
   }
 
   @UseGuards(JwtAuthGuard)
-  @Patch(':id/read')
+  @Patch('read/:id')
   async markRead(@Param('id') id: string) {
     return this.notificationsService.markAsRead(id);
   }

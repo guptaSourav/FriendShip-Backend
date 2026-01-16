@@ -5,6 +5,8 @@ import { Model, Types } from 'mongoose';
 import { Swipe, SwipeDocument, SwipeAction } from './entities/swipe.schema';
 import { MatchService } from '../match/match.service';
 import { Profile, ProfileDocument } from '../profiles/entities/profile.schema';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/entities/notification.schema';
 
 @Injectable()
 export class SwipeService {
@@ -14,6 +16,7 @@ export class SwipeService {
     @InjectModel(Profile.name)
     private profileModel: Model<ProfileDocument>,
     private matchService: MatchService,
+    private notificationsService: NotificationsService,
   ) {}
 
   async swipe(
@@ -56,6 +59,14 @@ export class SwipeService {
           { userId: toId },
           { $inc: { likeCount: 1 } },
         );
+        await this.notificationsService.createNotification({
+          receiver: dto.toUserId,
+          sender: fromUserId,
+          type: NotificationType.LIKE,
+          title: 'New Like! ❤️',
+          body: 'Someone just liked your profile!',
+          platform: 'in_app',
+        });
       }
 
       // 4. If match detected → create match

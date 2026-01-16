@@ -70,7 +70,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const sockets = this.onlineUsers.get(userId);
     console.log('Sockets:', sockets);
     if (!sockets) return;
-
+    
     sockets.forEach((socketId) => {
       this.server.to(socketId).emit(event, payload);
     });

@@ -47,6 +47,8 @@ export class FeedService {
       status: ProfileStatus.ACTIVE,
     };
 
+    // console.log('filtered user : ', filter);
+
     // 3. Apply preference filters
     if (pref) {
       // Age filter via DOB
@@ -58,7 +60,7 @@ export class FeedService {
       maxDob.setFullYear(today.getFullYear() - pref.minAge);
 
       filter.dateOfBirth = { $gte: minDob, $lte: maxDob };
-
+      
       if (pref.preferredGender?.length) {
         filter.gender = { $in: pref.preferredGender };
       }
@@ -103,6 +105,8 @@ export class FeedService {
       return b.blocker.equals(userObjectId) ? b.blocked : b.blocker;
     });
 
+    // console.log("filtered user : ", filter)
+
     // 7. Combine all excluded IDs
     filter.userId.$nin = [
       ...swipedIds,
@@ -118,6 +122,8 @@ export class FeedService {
       .limit(limit)
       .sort({ createdAt: -1 });
 
+    // console.log('profiles :', profiles);
+
     const feed = profiles.map((p) => ({
       ...p.toObject(),
       primaryPhoto: p.primaryPhoto || p.photos[0] || null,
@@ -127,7 +133,7 @@ export class FeedService {
       page,
       limit,
       count: feed.length,
-      profiles:feed,
+      profiles: feed,
     };
   }
 }

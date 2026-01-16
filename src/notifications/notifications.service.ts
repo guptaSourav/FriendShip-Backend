@@ -16,7 +16,7 @@ export class NotificationsService {
     private readonly notificationModel: Model<NotificationDocument>,
     private readonly appGateway: AppGateway,
   ) {}
-  
+
   async createNotification(data: CreateNotificationDto) {
     const receiverId = new Types.ObjectId(data.receiver);
     const senderId = data.sender ? new Types.ObjectId(data.sender) : undefined;
@@ -50,7 +50,7 @@ export class NotificationsService {
 
     return notification;
   }
-
+  
   async getUserNotifications(userId: string) {
     return this.notificationModel
       .find({ receiver: new Types.ObjectId(userId) })
