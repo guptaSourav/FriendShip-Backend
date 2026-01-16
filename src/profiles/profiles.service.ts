@@ -150,6 +150,7 @@ export class ProfilesService {
       .select(
         `
       name
+      userId
       bio
       gender
       age
@@ -158,7 +159,12 @@ export class ProfilesService {
       religion
       habits
       education
-      location
+      city
+      state
+      country
+      photos
+      primaryPhoto
+      likeCount
       `,
       )
       .lean();
