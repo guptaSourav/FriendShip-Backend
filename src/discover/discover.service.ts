@@ -58,7 +58,7 @@ export class DiscoverService {
         },
       },
     ];
-    
+
     // Age filter
     if (minAge || maxAge) {
       const minDob = maxAge
@@ -93,6 +93,7 @@ export class DiscoverService {
       },
       {
         $project: {
+          userId: 1,
           name: 1,
           age: 1,
           gender: 1,
