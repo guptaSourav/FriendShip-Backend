@@ -5,6 +5,7 @@ import { SwipeController } from './swipe.controller';
 import { Swipe, SwipeSchema } from './entities/swipe.schema';
 import { MatchModule } from '../match/match.module';
 import { Profile, ProfileSchema } from '../profiles/entities/profile.schema';
+import {NotificationsModule} from "../notifications/notifications.module";
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { Profile, ProfileSchema } from '../profiles/entities/profile.schema';
     ]),
 
     forwardRef(() => MatchModule),
+    forwardRef(() => NotificationsModule),
   ],
   controllers: [SwipeController],
   providers: [SwipeService],

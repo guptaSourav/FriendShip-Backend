@@ -58,7 +58,7 @@ export class DiscoverService {
         },
       },
     ];
-
+    
     // Age filter
     if (minAge || maxAge) {
       const minDob = maxAge

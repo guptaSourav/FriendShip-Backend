@@ -22,7 +22,7 @@ export class MatchService {
         user1: new Types.ObjectId(user1),
         user2: new Types.ObjectId(user2),
       });
-
+      
       await this.notificationService.createNotification({
         receiver: waitingUser,
         sender: triggeredBy,
