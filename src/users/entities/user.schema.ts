@@ -45,7 +45,7 @@ export class User {
 
   @Prop({ default: false })
   isBlocked: boolean;
-
+  
   @Prop({ type: [String], default: [] })
   fcmTokens: string[];
 

@@ -45,4 +45,10 @@ export class NotificationsController {
   async getUnreadCount(@Req() req) {
     return this.notificationsService.getUnreadCount(req.user.userId);
   }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('my')
+  async getMyNotification(@Req() req) {
+    return this.notificationsService.getUserNotifications(req.user.userId);
+  }
 }
