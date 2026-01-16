@@ -41,8 +41,12 @@ export class DiscoverService {
           near: myProfile.location,
           key: 'location',
           distanceField: 'distance',
-          maxDistance: distanceKm * 1000,
           spherical: true,
+        },
+      },
+      {
+        $match: {
+          distance: { $lte: distanceKm * 1000 },
         },
       },
       {
@@ -54,7 +58,7 @@ export class DiscoverService {
         },
       },
     ];
-
+    
     // Age filter
     if (minAge || maxAge) {
       const minDob = maxAge

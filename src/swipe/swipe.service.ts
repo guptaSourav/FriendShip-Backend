@@ -99,9 +99,9 @@ export class SwipeService {
       },
       {
         $lookup: {
-          from: 'profiles', // MongoDB collection name
-          localField: 'fromUser', // Swipe.fromUser
-          foreignField: 'userId', // Profile.userId
+          from: 'profiles',
+          localField: 'fromUser',
+          foreignField: 'userId', 
           as: 'profile',
         },
       },
@@ -114,7 +114,6 @@ export class SwipeService {
         $unwind: '$profile',
       },
       {
-        // Return only profile data (optional but clean)
         $replaceRoot: { newRoot: '$profile' },
       },
     ]);
