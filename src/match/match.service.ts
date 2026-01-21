@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject, forwardRef } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Match, MatchDocument } from './entities/match.schema';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationType } from '../notifications/entities/notification.schema';
+import { ChatService } from '../chats/chats.service';
 
 @Injectable()
 export class MatchService {
@@ -11,6 +12,8 @@ export class MatchService {
     @InjectModel(Match.name)
     private matchModel: Model<MatchDocument>,
     private readonly notificationService: NotificationsService,
+    @Inject(forwardRef(() => ChatService))
+    private readonly chatService: ChatService,
   ) {}
 
   async createMatch(userA: string, userB: string, triggeredBy: string) {
@@ -22,7 +25,7 @@ export class MatchService {
         user1: new Types.ObjectId(user1),
         user2: new Types.ObjectId(user2),
       });
-      
+
       await this.notificationService.createNotification({
         receiver: waitingUser,
         sender: triggeredBy,
@@ -32,6 +35,8 @@ export class MatchService {
         entityId: match._id.toString(),
         platform: 'in_app',
       });
+      // ✅ Create chat room immediately
+      await this.chatService.getOrCreateRoom(user1, user2);
 
       return match;
     } catch (err) {
@@ -74,5 +79,17 @@ export class MatchService {
         matchedAt: match.createdAt,
       };
     });
+  }
+
+  async isMatched(userA: string, userB: string): Promise<boolean> {
+    const match = await this.matchModel.findOne({
+      $or: [
+        { userA: userA, userB: userB },
+        { userA: userB, userB: userA },
+      ],
+      isActive: true,
+    });
+
+    return !!match;
   }
 }
