@@ -1,7 +1,13 @@
-import { Injectable, ForbiddenException, Inject, forwardRef } from '@nestjs/common';
+import {
+  Injectable,
+  ForbiddenException,
+  Inject,
+  forwardRef,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ChatRoom, ChatRoomDocument } from './entities/chat-room.schema';
+import { ProfileDocument, Profile } from '../profiles/entities/profile.schema';
 import {
   Message,
   MessageStatus,
@@ -14,7 +20,7 @@ export class ChatService {
   constructor(
     @InjectModel(ChatRoom.name)
     private chatRoomModel: Model<ChatRoomDocument>,
-  
+
     @InjectModel(Message.name)
     private messageModel: Model<MessageDocument>,
     @Inject(forwardRef(() => MatchService))
@@ -55,17 +61,17 @@ export class ChatService {
   }
 
   async getMyRooms(userId: string) {
-    return this.chatRoomModel
-      .find({ participants: userId })
+    return  this.chatRoomModel
+      .find({ participants: new Types.ObjectId(userId) })
       .sort({ lastMessageAt: -1 });
   }
 
   async getMessages(roomId: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
-
+    
     const messages = await this.messageModel
       .find({ chatRoomId: roomId })
-      .sort({ createdAt: -1 }) // newest first
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
 
