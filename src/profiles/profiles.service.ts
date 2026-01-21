@@ -133,7 +133,7 @@ export class ProfilesService {
     if (!profile) {
       throw new NotFoundException('Profile not found');
     }
-
+    
     return {
       ...profile,
       preference: preference || null,

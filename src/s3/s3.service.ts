@@ -53,13 +53,13 @@ export class S3Service {
   }): Promise<{ key: string; uploadUrl: string }> {
     const { userId, contentType, extension, expiresIn = 300 } = params;
     
-    const key = `user-photos/${userId}/temp/${randomUUID()}.${extension}`;
+    const key = `temp/profile/${userId}/${randomUUID()}.${extension}`;
 
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
       Key: key,
       ContentType: contentType,
-      ACL: 'private',
+      // ACL: 'private',
     });
 
     const uploadUrl = await getSignedUrl(this.s3, command, {

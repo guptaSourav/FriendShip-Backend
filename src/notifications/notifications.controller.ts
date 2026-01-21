@@ -39,7 +39,7 @@ export class NotificationsController {
   async markAllRead(@Req() req) {
     return this.notificationsService.markAllAsRead(req.user.userId);
   }
-
+  
   @UseGuards(JwtAuthGuard)
   @Get('unread-count')
   async getUnreadCount(@Req() req) {
