@@ -10,7 +10,7 @@ export class ChatController {
 
   @Get('rooms')
   getMyRooms(@Req() req) {
-    return this.chatService.getMyRooms(req.user.id);
+    return this.chatService.getMyRooms(req.user.userId);
   }
 
   @Get('messages/:roomId')
