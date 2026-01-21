@@ -81,7 +81,7 @@ export class ChatService {
         this.profileService.getProfileByUserId(id.toString()),
       ),
     );
-
+    
     // merge room + profile
     return rooms.map((room, index) => ({
       _id: room._id,
@@ -90,7 +90,7 @@ export class ChatService {
       otherUser: profiles[index],
     }));
   }
-  
+
   async getMessages(roomId: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
 
