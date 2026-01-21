@@ -7,7 +7,7 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ChatRoom, ChatRoomDocument } from './entities/chat-room.schema';
-import { ProfileDocument, Profile } from '../profiles/entities/profile.schema';
+import { ProfilesService } from '../profiles/profiles.service';
 import {
   Message,
   MessageStatus,
@@ -25,6 +25,8 @@ export class ChatService {
     private messageModel: Model<MessageDocument>,
     @Inject(forwardRef(() => MatchService))
     private readonly matchService: MatchService,
+    @Inject(forwardRef(() => ProfilesService))
+    private readonly profileService: ProfilesService,
   ) {}
 
   async getOrCreateRoom(userA: string, userB: string) {
@@ -61,14 +63,37 @@ export class ChatService {
   }
 
   async getMyRooms(userId: string) {
-    return  this.chatRoomModel
-      .find({ participants: new Types.ObjectId(userId) })
-      .sort({ lastMessageAt: -1 });
-  }
+    const myId = new Types.ObjectId(userId);
 
+    const rooms = await this.chatRoomModel
+      .find({ participants: myId })
+      .sort({ lastMessageAt: -1 })
+      .lean();
+
+    // collect other participant ids
+    const otherUserIds: Types.ObjectId[] = rooms
+      .map((room) => room.participants.find((p) => !p.equals(myId)))
+      .filter((id): id is Types.ObjectId => id !== undefined);
+
+    // fetch profiles in parallel
+    const profiles = await Promise.all(
+      otherUserIds.map((id) =>
+        this.profileService.getProfileByUserId(id.toString()),
+      ),
+    );
+
+    // merge room + profile
+    return rooms.map((room, index) => ({
+      _id: room._id,
+      lastMessage: room.lastMessage,
+      lastMessageAt: room.lastMessageAt,
+      otherUser: profiles[index],
+    }));
+  }
+  
   async getMessages(roomId: string, page = 1, limit = 20) {
     const skip = (page - 1) * limit;
-    
+
     const messages = await this.messageModel
       .find({ chatRoomId: roomId })
       .sort({ createdAt: -1 })

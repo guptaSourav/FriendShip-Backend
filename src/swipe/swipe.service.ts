@@ -29,7 +29,7 @@ export class SwipeService {
 
     const fromId = new Types.ObjectId(fromUserId);
     const toId = new Types.ObjectId(dto.toUserId);
-
+    
     try {
       // 1. Check if reverse like exists (possible match)
       let isMatch = false;
