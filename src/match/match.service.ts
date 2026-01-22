@@ -91,6 +91,8 @@ export class MatchService {
       isActive: true,
     });
 
+    console.log(`Match found: ${match ? 'Yes' : 'No'}`);
+
     return !!match;
   }
 }
