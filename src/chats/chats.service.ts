@@ -102,6 +102,8 @@ export class ChatService {
       .skip(skip)
       .limit(limit);
 
+    console.log(`Fetched ${messages.length} messages for room ${roomId}, page ${page}`);
+      
     return messages.reverse();
   }
 
