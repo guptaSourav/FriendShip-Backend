@@ -152,7 +152,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       roomId: room._id,
       message,
     });
-
+    
     // Emit to receiver in real-time
     this.emitToUser(data.receiverId, SocketEvents.MESSAGE_RECEIVED, {
       roomId: room._id,

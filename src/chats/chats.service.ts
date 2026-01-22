@@ -34,7 +34,7 @@ export class ChatService {
     const room = await this.chatRoomModel.findOne({
       participants: { $all: [new Types.ObjectId(userA), new Types.ObjectId(userB) ] },
     });
-    
+
     if (room) return room;
 
     return this.chatRoomModel.create({
@@ -97,7 +97,7 @@ export class ChatService {
     const skip = (page - 1) * limit;
 
     const messages = await this.messageModel
-      .find({ chatRoomId: roomId })
+      .find({ chatRoomId: new Types.ObjectId(roomId) })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit);
