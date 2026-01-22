@@ -97,10 +97,9 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const userId = socket.data.userId;
     console.log(`User ${userId} joining chat room ${data.roomId}`);
-    // Join socket.io room for easier broadcast
+    
     socket.join(data.roomId);
 
-    // Fetch messages
     const messages = await this.chatService.getMessages(
       data.roomId,
       data.page || 1,

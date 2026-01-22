@@ -2,7 +2,7 @@ export enum SocketEvents {
   NOTIFICATION = 'notification',
 
   JOIN_CHAT = 'joinChat',
-
+  
   MESSAGE_SEND = 'message:send',
   MESSAGE_SENT = 'message:sent',
   MESSAGE_RECEIVED = 'message:received',
