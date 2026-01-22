@@ -7,7 +7,7 @@ export type ChatRoomDocument = ChatRoom & Document;
 export class ChatRoom {
   @Prop({ type: [Types.ObjectId], ref: 'User', required: true })
   participants: Types.ObjectId[];
-
+  
   @Prop({ default: '' })
   lastMessage: string;
 
