@@ -42,9 +42,10 @@ export class ChatService {
   }
 
   async sendMessage(senderId: string, receiverId: string, content: string) {
+    console.log(`Sending message from ${senderId} to ${receiverId}: ${content}`);
     const matched = await this.matchService.isMatched(senderId, receiverId);
     if (!matched) throw new ForbiddenException('Users are not matched');
-
+    
     const room = await this.getOrCreateRoom(senderId, receiverId);
     console.log(`Using room ${room._id} for users ${senderId} and ${receiverId}`);
     const message = await this.messageModel.create({
@@ -54,7 +55,7 @@ export class ChatService {
       content,
       status: MessageStatus.SENT,
     });
-    
+
     room.lastMessage = content;
     room.lastMessageAt = new Date();
     await room.save();
