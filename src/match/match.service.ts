@@ -82,10 +82,11 @@ export class MatchService {
   }
 
   async isMatched(userA: string, userB: string): Promise<boolean> {
+    console.log(`Checking match status between ${userA} and ${userB}`);
     const match = await this.matchModel.findOne({
       $or: [
-        { userA: userA, userB: userB },
-        { userA: userB, userB: userA },
+        { userA: new Types.ObjectId(userA), userB: new Types.ObjectId(userB) },
+        { userA: new Types.ObjectId(userB), userB: new Types.ObjectId(userA) },
       ],
       isActive: true,
     });
