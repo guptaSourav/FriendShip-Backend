@@ -8,6 +8,7 @@ import {
   Param,
   NotFoundException,
   ForbiddenException,
+  Delete,
 } from '@nestjs/common';
 import { ProfilesService } from './profiles.service';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -28,7 +29,7 @@ export class ProfilesController {
     const { userId } = req.user;
     return this.profilesService.updateProfile(userId, dto);
   }
-  
+
   @UseGuards(JwtAuthGuard)
   @Patch('set-location')
   updateMyLocation(@Req() req, @Body() dto: UpdateLocationDto) {
@@ -40,6 +41,27 @@ export class ProfilesController {
   async getMyProfile(@Req() req) {
     const { userId } = req.user;
     return this.profilesService.getMyProfile(userId);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('photos/confirm')
+  confirmUploadedPhotos(@Req() req, @Body('keys') keys: string[]) {
+    return this.profilesService.confirmUploadedPhotos(req.user.userId, keys);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('photos/replace')
+  async replacePhoto(
+    @Req() req,
+    @Body() dto: { oldUrl: string; newUrl: string },
+  ) {
+    return this.profilesService.replacePhoto(req.user.userId, dto);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Delete('photos/delete')
+  async deletePhoto(@Req() req, @Body('photoUrl') photoUrl: string) {
+    return this.profilesService.deletePhoto(req.user.userId, photoUrl);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -62,11 +84,11 @@ export class ProfilesController {
     const { userId } = req.user;
     return this.profilesService.getPreference(userId);
   }
-  
+
   @Get(':userId')
   async getProfileByUserId(@Param('userId') userId: string) {
     const profile = await this.profilesService.getProfileByUserId(userId);
-    
+
     if (!profile) {
       throw new NotFoundException('Profile not found');
     }

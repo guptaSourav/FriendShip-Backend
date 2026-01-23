@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
@@ -52,8 +52,8 @@ export class S3Service {
     expiresIn?: number;
   }): Promise<{ key: string; uploadUrl: string }> {
     const { userId, contentType, extension, expiresIn = 300 } = params;
-    
-    const key = `temp/profile/${userId}/${randomUUID()}.${extension}`;
+
+    const key = `user/profile/${userId}/${randomUUID()}.${extension}`;
 
     const command = new PutObjectCommand({
       Bucket: this.bucketName,
@@ -67,6 +67,17 @@ export class S3Service {
     });
 
     return { key, uploadUrl };
+  }
+
+  async deleteObject(fileUrl: string) {
+    const key = this.getKeyFromUrl(fileUrl);
+
+    await this.s3.send(
+      new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: key,
+      }),
+    );
   }
 
   // ------------------------------
@@ -90,5 +101,11 @@ export class S3Service {
         }),
       ),
     );
+  }
+
+  private getKeyFromUrl(url: string): string {
+    const bucket = this.bucketName;
+    const baseUrl = `https://${bucket}.s3.amazonaws.com/`;
+    return url.replace(baseUrl, '');
   }
 }

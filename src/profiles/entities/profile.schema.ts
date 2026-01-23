@@ -66,11 +66,11 @@ export class Profile {
   interests: string[];
 
   @Prop({ type: [String], default: [] })
-  photos: string[]; // all uploaded S3 URLs
+  photos: string[];
 
-  @Prop({ default: null })
-  primaryPhoto: string; // must exist in photos[]
-
+  @Prop({ type: String, default: null })
+  primaryPhoto: string | null;
+  
   @Prop({
     type: {
       type: String,

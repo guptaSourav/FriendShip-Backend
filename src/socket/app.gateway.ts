@@ -124,13 +124,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data.page,
       data.limit || 20,
     );
-
+    
     this.emitToUser(userId, SocketEvents.MORE_CHAT_HISTORY, {
       roomId: data.roomId,
       messages,
     });
   }
-  
+
   @SubscribeMessage(SocketEvents.MESSAGE_SEND)
   async handleSendMessage(
     @ConnectedSocket() socket: Socket,
