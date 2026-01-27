@@ -92,6 +92,10 @@ export class S3Service {
   }) {
     const { userId, files } = params;
 
+    if(files.length > 5){
+      throw new Error('Cannot generate more than 5 upload URLs at once');
+    }
+
     return Promise.all(
       files.map((file) =>
         this.generateUserPhotoUploadUrl({
