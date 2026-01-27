@@ -65,6 +65,12 @@ export class ProfilesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Patch('photos/set-primary')
+  async setPrimaryPhoto(@Req() req, @Body('photoUrl') photoUrl: string) {
+    return this.profilesService.setPrimaryPhoto(req.user.userId, photoUrl);
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch('set-preferences')
   async setPreferences(@Req() req, @Body() dto: CreatePreferenceDto) {
     const { userId } = req.user;

@@ -258,7 +258,7 @@ export class ProfilesService {
     });
 
     if (!profile) throw new NotFoundException('Profile not found');
-    
+
     const { oldUrl, newUrl } = dto;
 
     if (!profile.photos.includes(oldUrl)) {
@@ -279,6 +279,27 @@ export class ProfilesService {
     await profile.save();
 
     return { message: 'Photo replaced successfully' };
+  }
+
+  async setPrimaryPhoto(userId: string, photoUrl: string) {
+    const profile = await this.profileModel.findOne({
+      userId: new Types.ObjectId(userId),
+    });
+
+    if (!profile) throw new NotFoundException('Profile not found');
+
+    if (!profile.photos.includes(photoUrl)) {
+      throw new BadRequestException('Photo not found in profile');
+    }
+
+    if (profile.primaryPhoto === photoUrl) {
+      return { message: 'Photo is already the primary photo' };
+    }
+
+    profile.primaryPhoto = photoUrl;
+
+    await profile.save();
+    return { message: 'Primary photo updated successfully' };
   }
 
   async setPreference(userId: string, dto: CreatePreferenceDto) {
