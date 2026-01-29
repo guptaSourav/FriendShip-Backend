@@ -8,7 +8,7 @@ import { randomUUID } from 'crypto';
 export class S3Service {
   private s3: S3Client;
   private bucketName: string;
-
+  
   constructor(private configService: ConfigService) {
     this.bucketName = this.configService.getOrThrow('AWS_S3_BUCKET_NAME');
 
@@ -38,10 +38,10 @@ export class S3Service {
     });
 
     await this.s3.send(command);
-
+    
     return `https://${this.bucketName}.s3.amazonaws.com/${key}`;
   }
-
+  
   // ------------------------------
   // NEW: PRESIGNED URL (Single)
   // ------------------------------
