@@ -165,6 +165,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { toUserId: string },
   ) {
+    console.log(`User ${socket.data.userId} started typing to ${data.toUserId}`);
     const fromUser = socket.data.userId;
     this.emitToUser(data.toUserId, SocketEvents.TYPING_START, { fromUser });
   }
@@ -174,6 +175,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() socket: Socket,
     @MessageBody() data: { toUserId: string },
   ) {
+    console.log(`User ${socket.data.userId} stopped typing to ${data.toUserId}`);
     const fromUser = socket.data.userId;
     this.emitToUser(data.toUserId, SocketEvents.TYPING_STOP, { fromUser });
   }
