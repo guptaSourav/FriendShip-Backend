@@ -71,6 +71,20 @@ export class ProfilesController {
   }
 
   @UseGuards(JwtAuthGuard)
+  @Patch('documents/confirm')
+  async confirmUploadedDocument(
+    @Req() req,
+    @Body('key') key: string,
+    @Body('docType') docType: string,
+  ) {
+    return this.profilesService.confirmUploadedDocument(
+      req.user.userId,
+      key,
+      docType,
+    );
+  }
+
+  @UseGuards(JwtAuthGuard)
   @Patch('set-preferences')
   async setPreferences(@Req() req, @Body() dto: CreatePreferenceDto) {
     const { userId } = req.user;

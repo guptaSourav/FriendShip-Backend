@@ -11,10 +11,6 @@ export class S3Controller {
   async getUploadUrls(@Body() body: GenerateMultipleUploadUrlsDto) {
     const { userId, files } = body;
 
-
-    // TODO: Check if user exists in ProfilesService/UserService
-    // if (!userExists) throw new BadRequestException('User not found');
-
     if (!files || files.length === 0) {
       throw new BadRequestException('Files metadata is required');
     }
@@ -24,6 +20,19 @@ export class S3Controller {
       files,
     });
     
+    return { uploadUrls };
+  }
+  
+  @Post('documents/upload-url')
+  async getDocUploadUrls(@Body() body: GenerateMultipleUploadUrlsDto) {
+    const { userId, files } = body;
+    if (!files || files.length === 0) {
+      throw new BadRequestException('Files metadata is required');
+    }
+    const uploadUrls = await this.s3Service.generateUserDocUploadUrl({
+      userId,
+      files,
+    });
     return { uploadUrls };
   }
 }

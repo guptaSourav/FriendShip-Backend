@@ -4,8 +4,11 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Profile, ProfileDocument } from './entities/profile.schema';
 import { ProfileStatus } from './entities/profile.schema';
+import { DocumentType } from './entities/profile.schema';
 import { Gender } from './entities/profile.schema';
 import { Preference } from './entities/preference.schema';
+import { UsersService } from '../users/users.service';
+import { VerificationStatus } from '../users/entities/user.schema';
 import { UpdateProfileDto } from './dto/update-profile.dto';
 import { NotFoundException, BadRequestException } from '@nestjs/common';
 import { UpdateLocationDto } from './dto/update-location.dto';
@@ -28,6 +31,7 @@ export class ProfilesService {
     private readonly preferenceModel: Model<PreferenceDocument>,
     private readonly configService: ConfigService,
     private readonly s3Service: S3Service,
+    private readonly user: UsersService,
   ) {}
 
   async createProfile(data: {
@@ -168,9 +172,46 @@ export class ProfilesService {
       photos
       primaryPhoto
       likeCount
+      documentUrl
       `,
       )
       .lean();
+  }
+
+  async getAllUserProfiles(
+    page = 1,
+    limit = 10,
+  ): Promise<{
+    data: ProfileDocument[];
+    meta: {
+      total: number;
+      page: number;
+      limit: number;
+      totalPages: number;
+    };
+  }> {
+    const skip = (page - 1) * limit;
+
+    const [profiles, total] = await Promise.all([
+      this.profileModel
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .sort({ createdAt: -1 })
+        .exec(),
+
+      this.profileModel.countDocuments(),
+    ]);
+
+    return {
+      data: profiles,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
   async confirmUploadedPhotos(userId: string, keys: string[]) {
@@ -221,6 +262,43 @@ export class ProfilesService {
       success: true,
       photos: profile.photos,
       primaryPhoto: profile.primaryPhoto,
+    };
+  }
+
+  async confirmUploadedDocument(userId: string, key: string, docType: string) {
+    const userObjectId = new Types.ObjectId(userId);
+    // 1. Find profile
+    const profile = await this.profileModel.findOne({ userId: userObjectId });
+    if (!profile) {
+      throw new NotFoundException('Profile not found');
+    }
+
+    if(!Object.values(DocumentType).includes(docType as any)){
+      throw new BadRequestException('Invalid document type');
+    }
+
+    // 2. Validate key belongs to this user
+    if (!key.startsWith(`user/documents/${userId}/`)) {
+      throw new Error('Invalid document key provided');
+    }
+    // 3. Convert key → S3 URL
+    const bucket = this.configService.getOrThrow('AWS_S3_BUCKET_NAME');
+    const documentUrl = `https://${bucket}.s3.amazonaws.com/${key}`;
+    // 4. Save document URL to profile
+    profile.documentUrl = documentUrl;
+    profile.documentType = docType as DocumentType;
+    await profile.save();
+
+    const user = await this.user.findById(userId);
+    if (user) {
+      user.isVerified = false;
+      user.verificationStatus = VerificationStatus.PENDING;
+      await user.save();
+    }
+    return {
+      success: true,
+      documentUrl: profile.documentUrl,
+      message: 'Document uploaded successfully, pending verification',
     };
   }
 

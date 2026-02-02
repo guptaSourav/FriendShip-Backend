@@ -1,5 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from '@aws-sdk/client-s3';
+import {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { ConfigService } from '@nestjs/config';
 import { randomUUID } from 'crypto';
@@ -8,7 +12,7 @@ import { randomUUID } from 'crypto';
 export class S3Service {
   private s3: S3Client;
   private bucketName: string;
-  
+
   constructor(private configService: ConfigService) {
     this.bucketName = this.configService.getOrThrow('AWS_S3_BUCKET_NAME');
 
@@ -38,10 +42,10 @@ export class S3Service {
     });
 
     await this.s3.send(command);
-    
+
     return `https://${this.bucketName}.s3.amazonaws.com/${key}`;
   }
-  
+
   // ------------------------------
   // NEW: PRESIGNED URL (Single)
   // ------------------------------
@@ -92,7 +96,7 @@ export class S3Service {
   }) {
     const { userId, files } = params;
 
-    if(files.length > 5){
+    if (files.length > 5) {
       throw new Error('Cannot generate more than 5 upload URLs at once');
     }
 
@@ -104,6 +108,33 @@ export class S3Service {
           extension: file.extension,
         }),
       ),
+    );
+  }
+
+  async generateUserDocUploadUrl(params: {
+    userId: string;
+    files: {
+      contentType: string;
+      extension: string;
+    }[];
+  }) {
+    const { userId, files } = params;
+    
+    if (files.length > 1) {
+      throw new Error('Cannot generate more than 1 upload URLs');
+    }
+    return Promise.all(
+      files.map((file) => {
+        const key = `user/documents/${userId}/${randomUUID()}.${file.extension}`;
+        const command = new PutObjectCommand({
+          Bucket: this.bucketName,
+          Key: key,
+          ContentType: file.contentType,
+        });
+        return getSignedUrl(this.s3, command, { expiresIn: 300 }).then(
+          (uploadUrl) => ({ key, uploadUrl }),
+        );
+      }),
     );
   }
 

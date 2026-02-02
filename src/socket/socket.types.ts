@@ -10,8 +10,7 @@ export enum SocketEvents {
   CHAT_HISTORY = 'chat:history',
   MORE_CHAT_HISTORY = 'chat:moreHistory',
   LOAD_MORE_MESSAGES = 'chat:loadMoreMessages',
-  
-  // Typing indicators
+
   TYPING_START = 'typing:start',
   TYPING_STOP = 'typing:stop',
 }
