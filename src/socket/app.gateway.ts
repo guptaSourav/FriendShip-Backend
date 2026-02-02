@@ -72,7 +72,7 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     }
   }
 
-  // used later by chat & notification
+
   emitToUser(userId: string, event: string, payload: any) {
     console.log(`📣 Emitting event "${event}" to user: ${userId}`);
     const sockets = this.onlineUsers.get(userId);
@@ -84,6 +84,10 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
     });
   }
 
+  emitToAllUsers(event: string, payload: any) {
+    this.server.emit(event, payload);
+  }
+  
   emitToRoom(roomId: string, event: string, payload: any) {
     this.server.to(roomId).emit(event, payload);
   }
@@ -144,16 +148,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
       data.content,
     );
 
-    // Ensure both sender & receiver join the room
     socket.join(room._id.toString());
 
-    // Emit confirmation to sender
     this.emitToUser(senderId, SocketEvents.MESSAGE_SENT, {
       roomId: room._id,
       message,
     });
 
-    // Emit to receiver in real-time
     this.emitToUser(data.receiverId, SocketEvents.MESSAGE_RECEIVED, {
       roomId: room._id,
       message,
@@ -187,13 +188,13 @@ export class AppGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ) {
     const userId = socket.data.userId;
 
-    // Let service mark messages as seen and get participants
+
     const participants = await this.chatService.markAsSeenAndGetParticipants(
       data.roomId,
       userId,
     );
 
-    // Notify all participants
+
     participants?.forEach((p) =>
       this.emitToUser(p.toString(), SocketEvents.MESSAGE_READ, {
         roomId: data.roomId,

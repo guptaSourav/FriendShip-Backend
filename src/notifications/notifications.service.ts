@@ -50,6 +50,8 @@ export class NotificationsService {
 
     return notification;
   }
+
+  
   
   async getUserNotifications(userId: string) {
     return this.notificationModel

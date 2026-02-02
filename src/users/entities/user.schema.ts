@@ -13,6 +13,13 @@ export enum UserRole {
   ADMIN = 'admin',
 }
 
+export enum VerificationStatus {
+  NOT_VERIFIED = 'Not Verified',
+  PENDING = 'Pending',
+  VERIFIED = 'Verified',
+  REJECTED = 'Rejected',
+}
+
 @Schema({
   timestamps: true,
   toJSON: { virtuals: true },
@@ -45,7 +52,7 @@ export class User {
 
   @Prop({ default: false })
   isBlocked: boolean;
-  
+
   @Prop({ type: [String], default: [] })
   fcmTokens: string[];
 
@@ -54,6 +61,12 @@ export class User {
 
   @Prop({ default: false })
   isOtpVerified: boolean;
+
+  @Prop({ default: false })
+  isVerified: boolean;
+
+  @Prop({ enum: VerificationStatus, default: VerificationStatus.NOT_VERIFIED })
+  verificationStatus: VerificationStatus;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

@@ -29,6 +29,13 @@ export enum EducationLevel {
   PHD = 'phd',
 }
 
+export enum DocumentType {
+  ID_CARD = 'id_card',
+  PASSPORT = 'passport',
+  DRIVER_LICENSE = 'driver_license',
+  ADHAAR = 'aadhaar',
+}
+
 @Schema({
   timestamps: true,
   toJSON: { virtuals: true },
@@ -70,7 +77,7 @@ export class Profile {
 
   @Prop({ type: String, default: null })
   primaryPhoto: string | null;
-  
+
   @Prop({
     type: {
       type: String,
@@ -119,6 +126,12 @@ export class Profile {
 
   @Prop({ default: 0 })
   likeCount: number;
+
+  @Prop({ default: null })
+  documentUrl: string;
+
+  @Prop({ enum: DocumentType, default: null })
+  documentType: DocumentType;
 }
 
 export const ProfileSchema = SchemaFactory.createForClass(Profile);
