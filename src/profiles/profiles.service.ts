@@ -175,6 +175,11 @@ export class ProfilesService {
       documentUrl
       `,
       )
+      .populate({
+        path: 'userId',
+        select:
+          'email isVerified verificationStatus isProfileCompleted isDeleted isActive role',
+      })
       .lean();
   }
 
@@ -195,6 +200,11 @@ export class ProfilesService {
     const [profiles, total] = await Promise.all([
       this.profileModel
         .find()
+        .populate({
+          path: 'userId',
+          select:
+            'email isVerified verificationStatus isProfileCompleted isDeleted isActive role',
+        })
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
@@ -272,15 +282,14 @@ export class ProfilesService {
       throw new NotFoundException('Profile not found');
     }
 
-    if(!Object.values(DocumentType).includes(docType as any)){
+    if (!Object.values(DocumentType).includes(docType as any)) {
       throw new BadRequestException('Invalid document type');
     }
-
 
     if (!key.startsWith(`user/documents/${userId}/`)) {
       throw new Error('Invalid document key provided');
     }
-  
+
     const bucket = this.configService.getOrThrow('AWS_S3_BUCKET_NAME');
     const documentUrl = `https://${bucket}.s3.amazonaws.com/${key}`;
 
@@ -440,7 +449,7 @@ export class ProfilesService {
       !!profile.state,
       !!profile.country,
     ];
-    
+
     const weight = 100 / checks.length;
 
     checks.forEach((c) => {
