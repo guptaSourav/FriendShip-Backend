@@ -16,18 +16,19 @@ import { Roles } from '../auth/roles/roles.decorator';
 import { Role } from '../auth/roles/roles.enum';
 import { VerificationStatus } from '../users/entities/user.schema';
 
-@UseGuards(JwtAuthGuard, RolesGuard)
+@UseGuards(JwtAuthGuard)
 @Roles(Role.ADMIN)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
-
+  
   // 1️⃣ Get all users (profiles with pagination)
-  @Get('users')
+  @Get('all-users')
   getAllUsers(
     @Query('page') page = 1,
     @Query('limit') limit = 10,
   ) {
+    console.log("inside admin")
     return this.adminService.getAllUserProfiles(
       Number(page),
       Number(limit),

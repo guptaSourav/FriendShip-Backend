@@ -10,6 +10,7 @@ import { SocketModule } from './socket/socket.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import {BlockModule} from './blocks/blocks.module';
 import {FeedModule} from "./feed/feed.module";
+import {AdminModule} from "./admin/admin.module";
 
 import { RedisTestController } from './redis/redis-test.controller';
 
@@ -26,6 +27,7 @@ import { RedisTestController } from './redis/redis-test.controller';
     NotificationsModule,
     BlockModule,
     FeedModule,
+    AdminModule,
   ],
   controllers: [RedisTestController],
 })

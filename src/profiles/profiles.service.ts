@@ -255,7 +255,6 @@ export class ProfilesService {
       profile.status = ProfileStatus.ACTIVE;
     }
 
-    // 7. Save
     await profile.save();
 
     return {
@@ -267,7 +266,7 @@ export class ProfilesService {
 
   async confirmUploadedDocument(userId: string, key: string, docType: string) {
     const userObjectId = new Types.ObjectId(userId);
-    // 1. Find profile
+
     const profile = await this.profileModel.findOne({ userId: userObjectId });
     if (!profile) {
       throw new NotFoundException('Profile not found');
@@ -277,14 +276,14 @@ export class ProfilesService {
       throw new BadRequestException('Invalid document type');
     }
 
-    // 2. Validate key belongs to this user
+
     if (!key.startsWith(`user/documents/${userId}/`)) {
       throw new Error('Invalid document key provided');
     }
-    // 3. Convert key → S3 URL
+  
     const bucket = this.configService.getOrThrow('AWS_S3_BUCKET_NAME');
     const documentUrl = `https://${bucket}.s3.amazonaws.com/${key}`;
-    // 4. Save document URL to profile
+
     profile.documentUrl = documentUrl;
     profile.documentType = docType as DocumentType;
     await profile.save();
@@ -441,7 +440,7 @@ export class ProfilesService {
       !!profile.state,
       !!profile.country,
     ];
-
+    
     const weight = 100 / checks.length;
 
     checks.forEach((c) => {

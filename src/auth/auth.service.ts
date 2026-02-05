@@ -1,7 +1,7 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { UserDocument, AuthProvider } from '../users/entities/user.schema';
+import { UserDocument, AuthProvider, UserRole } from '../users/entities/user.schema';
 import { OAuth2Client } from 'google-auth-library';
 import { ConfigService } from '@nestjs/config';
 
@@ -143,6 +143,7 @@ export class AuthService {
       provider: AuthProvider.LOCAL,
       providerId: dto.email,
       email: dto.email,
+      role: dto.email === this.configService.get<string>('ADMIN_EMAIL') ? UserRole.ADMIN : UserRole.USER,
       password: hashedPassword,
       isOtpVerified: true,
       isProfileCompleted: false,
