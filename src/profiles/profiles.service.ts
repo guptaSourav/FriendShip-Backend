@@ -342,11 +342,11 @@ export class ProfilesService {
     const profile = await this.profileModel.findOne({
       userId: new Types.ObjectId(userId),
     });
-
+    
     if (!profile) throw new NotFoundException('Profile not found');
-
+    
     const { oldUrl, newUrl } = dto;
-
+    // console.log("old : ",oldUrl);
     if (!profile.photos.includes(oldUrl)) {
       throw new BadRequestException('Old photo not found');
     }

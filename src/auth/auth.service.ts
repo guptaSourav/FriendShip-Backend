@@ -1,7 +1,11 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
-import { UserDocument, AuthProvider, UserRole } from '../users/entities/user.schema';
+import {
+  UserDocument,
+  AuthProvider,
+  UserRole,
+} from '../users/entities/user.schema';
 import { OAuth2Client } from 'google-auth-library';
 import { ConfigService } from '@nestjs/config';
 
@@ -39,6 +43,7 @@ export class AuthService {
   }
 
   async googleLogin(idToken: string, fcmToken?: string) {
+    // 1️⃣ Verify Google token
     const ticket = await this.googleClient.verifyIdToken({
       idToken,
       audience: this.configService.get<string>('GOOGLE_CLIENT_ID'),
@@ -46,43 +51,81 @@ export class AuthService {
 
     const payload = ticket.getPayload();
 
-    if (!payload) throw new UnauthorizedException('Invalid Google token');
+    if (!payload) {
+      throw new UnauthorizedException('Invalid Google token');
+    }
 
-    const { sub: providerId, email } = payload;
+    const { sub: providerId, email, email_verified } = payload;
 
-    // 2️⃣ Find or create user
-    let user: UserDocument | null = await this.usersService.findByProviderId(
+    if (!email || !providerId) {
+      throw new UnauthorizedException('Invalid Google payload');
+    }
+
+    if (!email_verified) {
+      throw new UnauthorizedException('Google email not verified');
+    }
+
+    // 2️⃣ Find user by provider
+    let user = await this.usersService.findByProviderId(
       AuthProvider.GOOGLE,
       providerId,
     );
 
-    // if (user.isBlocked) {
-    //   throw new UnauthorizedException('User is blocked');
-    // }
-
-    // if (user.isDeleted) {
-    //   throw new UnauthorizedException('User not found');
-    // }
-
+    // 3️⃣ If not found, try linking by email
     if (!user) {
-      user = await this.usersService.createUser({
-        provider: AuthProvider.GOOGLE,
-        providerId,
-        email: email!,
-        fcmTokens: fcmToken ? [fcmToken] : [],
-        // role: 'user',
-      });
-    } else if (fcmToken && !user.fcmTokens.includes(fcmToken)) {
-      // Add new FCM token if provided
-      user.fcmTokens.push(fcmToken);
-      user.lastLoginAt = new Date();
-      await user.save();
+      const existingUser = await this.usersService.findByEmail(email);
+
+      if (existingUser) {
+        // Link Google provider to existing account
+        existingUser.provider = AuthProvider.GOOGLE;
+        existingUser.providerId = providerId;
+        user = await existingUser.save();
+      } else {
+        // Create new user
+        user = await this.usersService.createUser({
+          provider: AuthProvider.GOOGLE,
+          providerId,
+          email,
+          fcmTokens: fcmToken ? [fcmToken] : [],
+          lastLoginAt: new Date(),
+        });
+      }
     }
 
-    // console.log('Authenticated user:', user);
+    // 4️⃣ Security checks
+    if (user.isBlocked) {
+      throw new UnauthorizedException('User is blocked');
+    }
 
-    // 3️⃣ Return JWT
-    return this.generateToken(user);
+    if (user.isDeleted) {
+      throw new UnauthorizedException('User not found');
+    }
+
+    // 5️⃣ Update FCM token & login timestamp
+    if (fcmToken) {
+      const tokenExists = user.fcmTokens?.includes(fcmToken);
+
+      if (!tokenExists) {
+        user.fcmTokens = [...(user.fcmTokens || []), fcmToken];
+      }
+    }
+
+    user.lastLoginAt = new Date();
+    await user.save();
+
+    // 6️⃣ Generate JWT
+    const tokens = await this.generateToken(user);
+
+    return {
+      ...tokens,
+      user: {
+        id: user._id,
+        email: user.email,
+        isProfileCompleted: user.isProfileCompleted,
+        isVerified: user.isVerified,
+        // isBlueTick: user.isBlueTick,
+      },
+    };
   }
 
   generateToken(user: UserDocument) {
@@ -143,7 +186,10 @@ export class AuthService {
       provider: AuthProvider.LOCAL,
       providerId: dto.email,
       email: dto.email,
-      role: dto.email === this.configService.get<string>('ADMIN_EMAIL') ? UserRole.ADMIN : UserRole.USER,
+      role:
+        dto.email === this.configService.get<string>('ADMIN_EMAIL')
+          ? UserRole.ADMIN
+          : UserRole.USER,
       password: hashedPassword,
       isOtpVerified: true,
       isProfileCompleted: false,
@@ -169,7 +215,7 @@ export class AuthService {
 
     // Delete OTP from Redis
     await this.redisService.del(`otp:register:${dto.email}`);
-    
+
     // Generate JWT
     const token = this.generateToken(user);
 
